@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: 37 99 235;
+    --primary-dark: 29 78 216;
+    --success: 16 185 129;
+    --warning: 245 158 11;
+    --error: 239 68 68;
+    --background: 243 244 246;
+    --background-dark: 229 231 235;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: rgb(var(--background));
+    color: rgb(31, 41, 55);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: rgb(17, 24, 39);
+  }
+
+  h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 2.25rem;
+    }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    h2 {
+      font-size: 1.875rem;
+    }
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  @media (min-width: 768px) {
+    h3 {
+      font-size: 1.5rem;
+    }
+  }
+
+  button, [type='button'], [type='submit'] {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: rgb(243, 244, 246);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(209, 213, 219);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 163, 175);
+  }
+}
+
+@layer components {
+  .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  .btn:focus {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    --tw-ring-opacity: 0.5;
+    --tw-ring-color: rgb(37 99 235 / var(--tw-ring-opacity));
+    --tw-ring-offset-width: 2px;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background-color: rgb(37 99 235);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: rgb(29 78 216);
+  }
+
+  .btn-outline {
+    border: 1px solid rgb(209 213 219);
+  }
+
+  .btn-outline:hover {
+    background-color: rgb(249 250 251);
+  }
+
+  .btn-outline:focus {
+    --tw-ring-opacity: 0.5;
+    --tw-ring-color: rgb(209 213 219 / var(--tw-ring-opacity));
+  }
+
+  .card {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    overflow: hidden;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    border: 1px solid rgb(243 244 246);
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+}
