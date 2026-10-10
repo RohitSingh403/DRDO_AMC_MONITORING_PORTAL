@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    background-image: radial-gradient(1100px 420px at 0% -10%, #faf6ef, transparent 60%);
+    min-height: 100vh;
+  }
+
+  :focus-visible {
+    outline: 2px solid #8d6a3f;
+    outline-offset: 2px;
+  }
+}

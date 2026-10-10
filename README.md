@@ -1,62 +1,62 @@
-# 🛠️ DRDO AMC Monitoring Portal
+# AMC Desk
 
-A full-stack AMC (Annual Maintenance Contract) Monitoring Portal built using **ReactJS**, **Node.js**, **Express**, and **MongoDB** for DRDO IT personnel and administrators to manage daily, weekly, monthly equipment maintenance tasks and reports.
+A personal full-stack rebuild of an AMC (Annual Maintenance Contract) monitoring desk. IT admins assign daily, weekly, and monthly checks. AMC personnel update status, time, remarks, and proof. The board turns green, orange, or red as work slips.
 
----
+This is a portfolio project. It is not an official system.
 
-## 🔗 Live Demo
+## What the desk covers
 
-**Frontend**: [https://your-frontend.vercel.app](https://your-frontend.vercel.app)  
-**Backend**: [https://your-backend.render.com/api](https://your-backend.render.com/api)
+Daily checks include AV, OS and Office activation, hardware, the CORONA, CIAG, DMZ, and NKN networks, cameras, UPS, server-room AC, a morning and evening biometric check, surveillance, VC setup, printers, and complaints.
 
----
+Weekly checks cover the VC rooms, cables and fibre, switches, server-room disks, servers, cleaning, AVASYAM, and unauthorized devices.
 
-## 🚀 Tech Stack
+Monthly checks are the firewall review and backup and restore.
 
-| Category      | Technology               |
-|---------------|---------------------------|
-| Frontend      | ReactJS, Tailwind CSS     |
-| Backend       | Node.js, Express.js       |
-| Database      | MongoDB + Mongoose        |
-| Auth          | JWT Token Authentication  |
-| Deployment    | Vercel (Frontend), Render (Backend), MongoDB Atlas |
-| API Testing   | Postman / Thunder Client  |
+Every task has a completion remark and a separate issue remark. Photos, screenshots, and PDFs can be attached. Open incidents and overdue work show as red. A finished task with an issue remark stays orange.
 
----
+## Stack
 
-## 🔐 Features
+- React, Vite, and Tailwind CSS
+- Node.js, Express, and MongoDB (Mongoose)
+- JWT auth with two roles: IT Admin and AMC Personnel
 
-- 🔑 Role-based login (Admin / Technician)
-- ✅ Task management by frequency: Daily / Weekly / Monthly
-- 📋 Remarks, status updates & file uploads
-- 📅 Dashboard with pie chart (completion %), progress bars
-- 🛎️ Alert system (Green, Orange, Red status)
-- 📊 Reports: Date-wise, Month-wise, Task-wise filters
-- 📁 Maintenance logs, AMC history, proof screenshots
+## Run it locally
 
----
-
-## 🧪 Postman API Endpoints
-
-| Method | Endpoint              | Description                  |
-|--------|-----------------------|------------------------------|
-| POST   | `/api/auth/login`     | Login with email & password |
-| GET    | `/api/tasks`          | Fetch all tasks              |
-| POST   | `/api/tasks`          | Create a task                |
-| PUT    | `/api/tasks/:id`      | Update status/remarks        |
-| GET    | `/api/reports/summary`| Get dashboard metrics        |
-
----
-
-## 🛠️ Local Development
+MongoDB has to be listening on port 27017. With Docker:
 
 ```bash
-# Backend
-cd amc-backend
-npm install
-npm run dev
+docker compose up -d
+```
 
-# Frontend
-cd amc-frontend
-npm install
+Without Docker, start a local `mongod`, then:
+
+```bash
+cp server/.env.example server/.env
+npm run install:all
 npm run dev
+```
+
+The API listens on `http://localhost:5000`. The desk listens on `http://localhost:5173`.
+
+`npm run dev` starts both. You can also run `npm run dev` inside `server/` and `client/` separately. `npm run seed` in the repo root reloads the demo data.
+
+## Demo accounts
+
+| Role | Email | Password |
+| --- | --- | --- |
+| IT Admin | admin@amc.local | Admin@123 |
+| AMC Personnel | personnel@amc.local | Personnel@123 |
+
+The login screen can sign in as either account.
+
+## Alert rules
+
+- **Green** — completed on time, or still inside the safe window.
+- **Orange** — due soon (4 hours for daily, 24 for weekly, 72 for monthly), or completed with an issue remark.
+- **Red** — overdue, completed after the due time, or tied to an unresolved incident.
+
+Compliance on the dashboard is closed tasks divided by tasks that are already due. Work that is not due yet does not lower the percentage.
+
+## Uploads
+
+Proof files are stored in `server/uploads`. That folder is local disk. A hosted deploy should move files to object storage, because a host filesystem does not keep them.
