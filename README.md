@@ -59,4 +59,33 @@ Compliance on the dashboard is closed tasks divided by tasks that are already du
 
 ## Uploads
 
-Proof files are stored in `server/uploads`. That folder is local disk. A hosted deploy should move files to object storage, because a host filesystem does not keep them.
+Proof files are stored in `server/uploads`. That folder is local disk. On Render the disk is wiped on every deploy and restart, so uploaded proof does not stick.
+
+## Host on Render
+
+One web service serves the desk and the API. Render does not provide MongoDB, so the database is a free MongoDB Atlas cluster. In Atlas, create a cluster, a database user, and a connection string, and allow access from anywhere (`0.0.0.0/0`).
+
+On the New Web Service screen, use these values. Leave Root Directory empty.
+
+| Field | Value |
+| --- | --- |
+| Name | `amc-desk` |
+| Language | Node |
+| Branch | `main` (after this hosting change is merged) |
+| Region | Oregon (US West) |
+| Root Directory | empty |
+| Build Command | `npm ci --include=dev --prefix server && npm ci --include=dev --prefix client && npm run build --prefix client` |
+| Start Command | `npm start --prefix server` |
+| Health Check Path | `/api/health` (under Advanced) |
+| Instance | Free, or the $7 plan if the site should stay awake |
+
+Environment variables:
+
+| Key | Value |
+| --- | --- |
+| `MONGODB_URI` | the Atlas connection string |
+| `JWT_SECRET` | a long random string |
+| `NODE_ENV` | `production` |
+| `SEED` | `true` |
+
+The first boot loads the demo accounts. Open the `onrender.com` URL and sign in from the login screen. The Free plan sleeps after about 15 minutes of no traffic; the first visit after that takes a little while to wake up.
