@@ -74,7 +74,7 @@ On the New Web Service screen, use these values. Leave Root Directory empty.
 | Branch | `main` (after this hosting change is merged) |
 | Region | Oregon (US West) |
 | Root Directory | empty |
-| Build Command | `npm ci --prefix server && npm ci --prefix client && npm run build --prefix client` |
+| Build Command | `npm ci --include=dev --prefix server && npm ci --include=dev --prefix client && npm run build --prefix client` |
 | Start Command | `npm start --prefix server` |
 | Health Check Path | `/api/health` (under Advanced) |
 | Instance | Free, or the $7 plan if the site should stay awake |
