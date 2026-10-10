@@ -61,9 +61,15 @@ Compliance on the dashboard is closed tasks divided by tasks that are already du
 
 Proof files are stored in `server/uploads`. That folder is local disk. On Render the disk is wiped on every deploy and restart, so uploaded proof does not stick.
 
+## Host it
+
+The desk is a Vite site on Vercel. The API is a Render web service. Render does not provide MongoDB, so `MONGODB_URI` points at MongoDB Atlas.
+
+The Vercel project needs `VITE_API_URL` set to the Render URL before the production build, for example `https://amc-desk.onrender.com`. The API allows the Vercel site and `https://amcportal.iamrohitsingh.com`.
+
 ## Host on Render
 
-One web service serves the desk and the API. Render does not provide MongoDB, so the database is a free MongoDB Atlas cluster. In Atlas, create a cluster, a database user, and a connection string, and allow access from anywhere (`0.0.0.0/0`).
+One web service runs the API. It can also serve a copy of the built desk. In Atlas, create a cluster, a database user, and a connection string, and allow access from anywhere (`0.0.0.0/0`).
 
 On the New Web Service screen, use these values. Leave Root Directory empty.
 
