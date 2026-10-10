@@ -21,7 +21,24 @@ const uploadDir = path.join(__dirname, '../uploads');
 fs.mkdirSync(uploadDir, { recursive: true });
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    try {
+      const host = new URL(origin).hostname;
+      const vercelPreview = host.endsWith('.vercel.app') && host.startsWith('drdo-amc-monitoring-portal');
+      if (host === 'amcportal.iamrohitsingh.com' || vercelPreview) return callback(null, true);
+    } catch {
+      // Ignore malformed origins and reject them below.
+    }
+    return callback(null, false);
+  },
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use('/uploads', express.static(uploadDir));
 
