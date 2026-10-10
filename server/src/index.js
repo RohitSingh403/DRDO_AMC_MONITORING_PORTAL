@@ -37,7 +37,22 @@ app.use('/api/equipment', equipmentRoutes);
 app.use('/api/incidents', incidentRoutes);
 app.use('/api/reports', reportRoutes);
 
-app.use((_req, res) => {
+const clientDist = path.resolve(__dirname, '../../client/dist');
+const clientIndex = path.join(clientDist, 'index.html');
+const clientReady = fs.existsSync(clientIndex);
+
+if (clientReady) {
+  app.use(express.static(clientDist));
+}
+
+app.use((req, res) => {
+  const wantsPage =
+    clientReady &&
+    (req.method === 'GET' || req.method === 'HEAD') &&
+    !req.path.startsWith('/api') &&
+    !req.path.startsWith('/uploads') &&
+    !path.extname(req.path);
+  if (wantsPage) return res.sendFile(clientIndex);
   res.status(404).json({ message: 'Not found' });
 });
 
