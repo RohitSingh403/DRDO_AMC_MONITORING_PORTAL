@@ -2,10 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { Banner, Card, Empty, Loading, Pill, inputClass } from '../components/ui';
-import { alertLabel, formatWhen, frequencyLabel, statusLabel } from '../lib/format';
+import { Banner, Button, Card, Empty, Loading, PageHeader, Pill, Segment, inputClass } from '../components/ui';
+import { alertLabel, cx, formatWhen, frequencyLabel, statusLabel } from '../lib/format';
 
-const frequencies = ['daily', 'weekly', 'monthly'];
+const rail = {
+  green: 'border-l-pine',
+  orange: 'border-l-amber',
+  red: 'border-l-signal',
+};
 
 export default function Tasks() {
   const { user } = useAuth();
@@ -55,33 +59,32 @@ export default function Tasks() {
     };
   }, [frequency, status, alert, query]);
 
-  return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brass">Board</p>
-          <h1 className="mt-2 font-serif text-4xl">Tasks</h1>
-          <p className="mt-2 text-sm text-muted">
-            {user?.role === 'admin' ? 'Every check on the desk.' : 'Checks assigned to you.'}
-          </p>
-        </div>
-        {user?.role === 'admin' ? <Link to="/schedule" className="rounded-md bg-ink px-4 py-2 text-sm text-paper">Assign work</Link> : null}
-      </header>
+  const openCount = tasks.filter((task) => task.status !== 'completed').length;
 
-      <div className="flex flex-wrap gap-2">
-        {frequencies.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setFrequency(item)}
-            className={`rounded-full px-4 py-1.5 text-sm ${frequency === item ? 'bg-ink text-paper' : 'border border-line bg-white text-ink'}`}
-          >
-            {frequencyLabel(item)}
-          </button>
-        ))}
+  return (
+    <div className="space-y-4">
+      <PageHeader
+        title="Tasks"
+        lede={user?.role === 'admin' ? 'Every check on the desk, ordered with open work first.' : 'Checks assigned to you, ordered with open work first.'}
+        actions={user?.role === 'admin' ? <Link to="/schedule"><Button>Assign work</Button></Link> : null}
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Segment
+          value={frequency}
+          onChange={setFrequency}
+          options={[
+            { value: 'daily', label: 'Daily' },
+            { value: 'weekly', label: 'Weekly' },
+            { value: 'monthly', label: 'Monthly' },
+          ]}
+        />
+        {!loading ? (
+          <p className="font-mono text-[12px] text-muted">{openCount} open · {tasks.length - openCount} closed</p>
+        ) : null}
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-3">
         <input className={inputClass} placeholder="Search checks" value={q} onChange={(event) => setQ(event.target.value)} />
         <select className={inputClass} value={status} onChange={(event) => setStatus(event.target.value)}>
           <option value="">Any status</option>
@@ -107,12 +110,7 @@ export default function Tasks() {
 
       {!loading && tasks.length > 0 ? (
         <Card>
-          <p className="border-b border-line px-4 py-3 text-sm text-muted">
-            {tasks.filter((task) => task.status !== 'completed').length} open
-            <span className="px-2">·</span>
-            {tasks.filter((task) => task.status === 'completed').length} closed
-          </p>
-          <div className="hidden grid-cols-12 gap-3 border-b border-line px-4 py-3 text-[11px] font-medium uppercase tracking-[0.14em] text-muted md:grid">
+          <div className="hidden grid-cols-12 gap-3 border-b border-line bg-[#f7f8fa] px-4 py-2 text-[12px] text-muted md:grid">
             <div className="col-span-5">Task</div>
             <div className="col-span-2">Due</div>
             <div className="col-span-2">{user?.role === 'admin' ? 'Assignee' : 'Status'}</div>
@@ -121,18 +119,21 @@ export default function Tasks() {
           <ul>
             {tasks.map((task) => (
               <li key={task._id} className="border-b border-line last:border-b-0">
-                <Link to={`/tasks/${task._id}`} className="grid gap-2 px-4 py-4 hover:bg-[#faf6ef] md:grid-cols-12 md:items-center">
+                <Link
+                  to={`/tasks/${task._id}`}
+                  className={cx('grid gap-1 border-l-2 px-4 py-2.5 hover:bg-canvas md:grid-cols-12 md:items-center', rail[task.alert])}
+                >
                   <span className="md:col-span-5">
-                    <span className="block text-sm font-medium">{task.title}</span>
-                    <span className="mt-1 block text-xs text-muted">
+                    <span className="block text-sm">{task.title}</span>
+                    <span className="mt-0.5 block text-[12px] text-muted">
                       {task.issueRemark ? 'Issue noted' : task.equipment?.name || frequencyLabel(task.frequency)}
                     </span>
                   </span>
-                  <span className="text-sm text-muted md:col-span-2">{formatWhen(task.dueAt)}</span>
+                  <span className="font-mono text-[12px] text-muted md:col-span-2">{formatWhen(task.dueAt)}</span>
                   <span className="text-sm md:col-span-2">
                     {user?.role === 'admin' ? task.assignedTo?.name : <Pill tone={task.status}>{statusLabel(task.status)}</Pill>}
                   </span>
-                  <span className="flex flex-wrap gap-2 md:col-span-3">
+                  <span className="flex flex-wrap items-center gap-3 md:col-span-3">
                     {user?.role === 'admin' ? <Pill tone={task.status}>{statusLabel(task.status)}</Pill> : null}
                     <Pill tone={task.alert}>{alertLabel(task.alert)}</Pill>
                   </span>

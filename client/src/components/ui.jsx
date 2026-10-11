@@ -1,18 +1,38 @@
 import { cx } from '../lib/format';
 
-export const inputClass = 'w-full rounded-md border border-line bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-brass';
+export const inputClass = 'w-full border border-line bg-white px-2.5 py-1.5 text-sm text-ink outline-none transition focus:border-link';
+
+const swatches = {
+  green: 'bg-pine',
+  orange: 'bg-amber',
+  red: 'bg-signal',
+  pending: 'bg-[#8a93a3]',
+  'in-progress': 'bg-link',
+  completed: 'bg-pine',
+  operational: 'bg-pine',
+  attention: 'bg-amber',
+  offline: 'bg-signal',
+  open: 'bg-signal',
+  resolved: 'bg-pine',
+  low: 'bg-[#8a93a3]',
+  medium: 'bg-amber',
+  high: 'bg-signal',
+  daily: 'bg-ink',
+  weekly: 'bg-link',
+  monthly: 'bg-[#6b4f2a]',
+};
 
 export function Button({ variant = 'primary', className = '', type = 'button', ...props }) {
   const styles = {
-    primary: 'bg-ink text-paper hover:bg-navy',
-    quiet: 'border border-line bg-white text-ink hover:border-brass',
-    brass: 'bg-brass text-white hover:bg-[#755731]',
+    primary: 'bg-navy text-white hover:bg-ink',
+    quiet: 'border border-line bg-white text-ink hover:border-ink',
+    brass: 'bg-navy text-white hover:bg-ink',
   };
   return (
     <button
       type={type}
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex h-8 items-center justify-center gap-2 px-3 text-[13px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
         styles[variant],
         className,
       )}
@@ -24,76 +44,112 @@ export function Button({ variant = 'primary', className = '', type = 'button', .
 export function Field({ label, hint, children }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1.5 block font-medium text-ink">{label}</span>
+      <span className="mb-1 block text-[13px] text-ink">{label}</span>
       {children}
-      {hint ? <span className="mt-1.5 block text-xs text-muted">{hint}</span> : null}
+      {hint ? <span className="mt-1 block text-xs text-muted">{hint}</span> : null}
     </label>
   );
 }
 
 export function Banner({ tone = 'error', children }) {
   const styles = tone === 'ok'
-    ? 'border-pine/30 bg-[#e7f5ee] text-[#146c3e]'
-    : 'border-signal/30 bg-[#fdeceb] text-signal';
-  return <div className={cx('rounded-md border px-4 py-3 text-sm', styles)}>{children}</div>;
+    ? 'border-pine/40 bg-[#f3faf6] text-[#14613c]'
+    : 'border-signal/40 bg-[#fdf4f2] text-[#8f2d1c]';
+  return <div className={cx('border px-3 py-2 text-sm', styles)}>{children}</div>;
 }
 
-export function Loading({ label = 'Loading the desk' }) {
+export function Loading({ label = 'Loading' }) {
   return (
-    <div className="flex items-center gap-3 py-16 text-sm text-muted">
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-brass border-t-transparent" />
+    <p className="flex items-center gap-2 py-10 font-mono text-[12px] text-muted">
+      <span className="inline-block h-2 w-2 animate-pulse bg-ink" />
       {label}
-    </div>
+    </p>
   );
 }
 
 export function Empty({ title, children }) {
   return (
-    <div className="rounded-lg border border-dashed border-line bg-card px-6 py-12 text-center">
-      <h2 className="font-serif text-2xl text-ink">{title}</h2>
-      <div className="mx-auto mt-2 max-w-md text-sm text-muted">{children}</div>
+    <div className="border border-line bg-white px-4 py-8">
+      <h2 className="text-sm font-medium">{title}</h2>
+      <div className="mt-1 max-w-lg text-sm text-muted">{children}</div>
     </div>
   );
 }
 
-const pills = {
-  green: 'bg-[#e7f5ee] text-[#146c3e]',
-  orange: 'bg-[#fff1e0] text-[#9a4e0b]',
-  red: 'bg-[#fdeceb] text-[#9d1c14]',
-  pending: 'bg-[#f4efe4] text-ink',
-  'in-progress': 'bg-[#e8eef5] text-[#1e3a5f]',
-  completed: 'bg-[#e7f5ee] text-[#146c3e]',
-  operational: 'bg-[#e7f5ee] text-[#146c3e]',
-  attention: 'bg-[#fff1e0] text-[#9a4e0b]',
-  offline: 'bg-[#fdeceb] text-[#9d1c14]',
-  open: 'bg-[#fdeceb] text-[#9d1c14]',
-  resolved: 'bg-[#e7f5ee] text-[#146c3e]',
-  low: 'bg-[#f4efe4] text-ink',
-  medium: 'bg-[#fff1e0] text-[#9a4e0b]',
-  high: 'bg-[#fdeceb] text-[#9d1c14]',
-  daily: 'bg-[#f4efe4] text-ink',
-  weekly: 'bg-[#e8eef5] text-[#1e3a5f]',
-  monthly: 'bg-[#f3eadf] text-[#6d4c2b]',
-};
-
 export function Pill({ tone, children }) {
   return (
-    <span className={cx('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium', pills[tone] || pills.pending)}>
+    <span className="inline-flex items-center gap-1.5 text-[13px] text-ink">
+      <span className={cx('h-2 w-2 shrink-0', swatches[tone] || swatches.pending)} />
       {children}
     </span>
   );
 }
 
 export function Card({ className = '', children }) {
-  return <section className={cx('rounded-lg border border-line bg-card shadow-card', className)}>{children}</section>;
+  return <section className={cx('border border-line bg-white', className)}>{children}</section>;
 }
 
-export function Kpi({ label, value, hint }) {
+export function PageHeader({ title, lede, actions }) {
   return (
-    <Card className="px-5 py-4">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted">{label}</p>
-      <p className="mt-2 font-serif text-4xl leading-none text-ink">{value}</p>
-      <p className="mt-2 text-sm text-muted">{hint}</p>
-    </Card>
+    <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
+      <div className="min-w-0">
+        <h1 className="text-[22px] font-semibold leading-none tracking-tight">{title}</h1>
+        {lede ? <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{lede}</p> : null}
+      </div>
+      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+    </div>
+  );
+}
+
+export function Segment({ value, onChange, options }) {
+  return (
+    <div className="inline-flex border border-line bg-white">
+      {options.map((option, index) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={cx(
+            'h-8 px-3 text-[13px]',
+            index > 0 && 'border-l border-line',
+            value === option.value ? 'bg-navy text-white' : 'text-ink hover:bg-canvas',
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function StatStrip({ items }) {
+  return (
+    <div className="border border-line bg-white sm:grid sm:grid-cols-2 xl:grid-cols-4">
+      {items.map((item, index) => (
+        <div
+          key={item.label}
+          className={cx(
+            'px-4 py-3',
+            index > 0 && 'border-t border-line sm:border-t-0',
+            index % 2 === 1 && 'sm:border-l sm:border-line',
+            index >= 2 && 'sm:border-t xl:border-t-0',
+            index > 0 && 'xl:border-l xl:border-line',
+          )}
+        >
+          <p className="text-[12px] text-muted">{item.label}</p>
+          <p className="mt-1 font-mono text-[26px] font-medium leading-none tabular-nums">{item.value}</p>
+          <p className="mt-2 text-[12px] text-muted">{item.hint}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function PanelTitle({ children, action }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3 border-b border-line px-4 py-2.5">
+      <h2 className="text-sm font-medium">{children}</h2>
+      {action}
+    </div>
   );
 }

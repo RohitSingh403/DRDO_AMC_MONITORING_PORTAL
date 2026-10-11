@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, fileUrl } from '../lib/api';
-import { Banner, Button, Card, Field, Loading, Pill, inputClass } from '../components/ui';
+import { Banner, Button, Card, Field, Loading, PageHeader, PanelTitle, Pill, inputClass } from '../components/ui';
 import { alertLabel, formatWhen, frequencyLabel, statusLabel } from '../lib/format';
 
 export default function TaskDetail() {
@@ -88,19 +88,22 @@ export default function TaskDetail() {
   if (!task) return <Banner>{error || 'Task not found'}</Banner>;
 
   return (
-    <div className="space-y-6">
-      <Link to="/tasks" className="text-sm text-brass">Back to tasks</Link>
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-brass">{frequencyLabel(task.frequency)}</p>
-          <h1 className="mt-2 font-serif text-4xl">{task.title}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{task.description}</p>
-        </div>
-        <div className="flex gap-2">
-          <Pill tone={task.status}>{statusLabel(task.status)}</Pill>
-          <Pill tone={task.alert}>{alertLabel(task.alert)}</Pill>
-        </div>
-      </header>
+    <div className="space-y-4">
+      <p className="text-[13px] text-muted">
+        <Link to="/tasks" className="text-link">Tasks</Link>
+        <span className="px-1.5">/</span>
+        {frequencyLabel(task.frequency)}
+      </p>
+      <PageHeader
+        title={task.title}
+        lede={task.description}
+        actions={(
+          <>
+            <Pill tone={task.status}>{statusLabel(task.status)}</Pill>
+            <Pill tone={task.alert}>{alertLabel(task.alert)}</Pill>
+          </>
+        )}
+      />
 
       {error ? <Banner>{error}</Banner> : null}
       {notice ? <Banner tone="ok">{notice}</Banner> : null}
@@ -108,13 +111,35 @@ export default function TaskDetail() {
         <Banner>This task has an open incident, so the alert stays red until an admin resolves it. <Link to="/incidents" className="underline">Open the log</Link></Banner>
       ) : null}
 
+      <Card>
+        <div className="grid text-sm sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ['Assigned to', task.assignedTo?.name],
+            ['Assigned by', task.assignedBy?.name],
+            ['Due', formatWhen(task.dueAt)],
+            ['Started / finished', `${formatWhen(task.startedAt)} · ${formatWhen(task.completedAt)}`],
+          ].map(([label, value], index) => (
+            <p key={label} className={`px-4 py-3 ${index > 0 ? 'border-t border-line sm:border-t-0 sm:border-l' : ''} ${index >= 2 ? 'lg:border-t-0' : ''} ${index === 2 ? 'sm:border-t lg:border-t-0' : ''}`}>
+              <span className="block text-[12px] text-muted">{label}</span>
+              <span className="mt-1 block">{value}</span>
+            </p>
+          ))}
+        </div>
+        {task.equipment ? (
+          <p className="border-t border-line px-4 py-3 text-sm">
+            <span className="block text-[12px] text-muted">Equipment</span>
+            <Link className="text-link" to={`/equipment/${task.equipment._id}`}>{task.equipment.name}</Link>
+          </p>
+        ) : null}
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-5">
-        <Card className="p-5 lg:col-span-3">
-          <h2 className="font-serif text-2xl">Checklist</h2>
-          {form.checklist.length === 0 ? <p className="mt-4 text-sm text-muted">This task has no checklist rows.</p> : null}
-          <ul className="mt-4 space-y-3">
+        <Card className="lg:col-span-3">
+          <PanelTitle>Checklist</PanelTitle>
+          {form.checklist.length === 0 ? <p className="px-4 py-4 text-sm text-muted">This task has no checklist rows.</p> : null}
+          <ul>
             {form.checklist.map((item, index) => (
-              <li key={item.label} className="rounded-md border border-line bg-white px-3 py-3">
+              <li key={item.label} className="border-t border-line px-4 py-3">
                 <label className="flex items-start gap-3 text-sm">
                   <input
                     type="checkbox"
@@ -127,8 +152,8 @@ export default function TaskDetail() {
                       setForm({ ...form, checklist });
                     }}
                   />
-                  <span>
-                    <span className="font-medium">{item.label}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className={item.done ? 'text-muted line-through' : 'font-medium'}>{item.label}</span>
                     <input
                       className={`${inputClass} mt-2`}
                       placeholder="Note for this row"
@@ -147,76 +172,68 @@ export default function TaskDetail() {
           </ul>
         </Card>
 
-        <form className="space-y-4 lg:col-span-2" onSubmit={save}>
-          <Card className="space-y-4 p-5">
-            <h2 className="font-serif text-2xl">Update</h2>
-            <Field label="Status">
-              <select className={inputClass} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
-                <option value="pending">Pending</option>
-                <option value="in-progress">In progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </Field>
-            <Field label="Completion remark" hint="Required before the task can be closed. Include the time you finished.">
-              <textarea className={`${inputClass} min-h-24`} value={form.completionRemark} onChange={(event) => setForm({ ...form, completionRemark: event.target.value })} />
-            </Field>
-            <Field label="Issue remark" hint="Report a problem found while doing the work. This stays separate from the completion remark.">
-              <textarea className={`${inputClass} min-h-24`} value={form.issueRemark} onChange={(event) => setForm({ ...form, issueRemark: event.target.value })} />
-            </Field>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={logIncident} onChange={(event) => setLogIncident(event.target.checked)} />
-              Also log the issue remark as an incident
-            </label>
-            {logIncident ? (
-              <Field label="Severity">
-                <select className={inputClass} value={severity} onChange={(event) => setSeverity(event.target.value)}>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+        <form className="lg:col-span-2" onSubmit={save}>
+          <Card>
+            <PanelTitle>Update</PanelTitle>
+            <div className="space-y-3 p-4">
+              <Field label="Status">
+                <select className={inputClass} value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
+                  <option value="pending">Pending</option>
+                  <option value="in-progress">In progress</option>
+                  <option value="completed">Completed</option>
                 </select>
               </Field>
-            ) : null}
-            <Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save update'}</Button>
+              <Field label="Completion remark" hint="Required before the task can be closed. Include the time you finished.">
+                <textarea className={`${inputClass} min-h-24`} value={form.completionRemark} onChange={(event) => setForm({ ...form, completionRemark: event.target.value })} />
+              </Field>
+              <Field label="Issue remark" hint="A problem found during the work. Kept separate from the completion remark.">
+                <textarea className={`${inputClass} min-h-24`} value={form.issueRemark} onChange={(event) => setForm({ ...form, issueRemark: event.target.value })} />
+              </Field>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={logIncident} onChange={(event) => setLogIncident(event.target.checked)} />
+                Also log the issue remark as an incident
+              </label>
+              {logIncident ? (
+                <Field label="Severity">
+                  <select className={inputClass} value={severity} onChange={(event) => setSeverity(event.target.value)}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </Field>
+              ) : null}
+              <Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save update'}</Button>
+            </div>
           </Card>
         </form>
       </div>
 
-      <Card className="p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-serif text-2xl">Proof</h2>
-          <label className="cursor-pointer rounded-md border border-line bg-white px-4 py-2 text-sm">
-            Add photo, screenshot, or PDF
-            <input className="sr-only" type="file" accept="image/jpeg,image/png,application/pdf" onChange={upload} />
-          </label>
-        </div>
-        {task.attachments.length === 0 ? <p className="mt-4 text-sm text-muted">No files yet.</p> : null}
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <Card>
+        <PanelTitle
+          action={(
+            <label className="cursor-pointer border border-line bg-white px-2.5 py-1 text-[13px] hover:border-ink">
+              Add photo, screenshot, or PDF
+              <input className="sr-only" type="file" accept="image/jpeg,image/png,application/pdf" onChange={upload} />
+            </label>
+          )}
+        >
+          Proof
+        </PanelTitle>
+        {task.attachments.length === 0 ? <p className="px-4 py-4 text-sm text-muted">No files yet.</p> : null}
+        <ul className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3">
           {task.attachments.map((file) => (
-            <li key={file._id || file.filename} className="overflow-hidden rounded-md border border-line bg-white">
+            <li key={file._id || file.filename} className="bg-white">
               {file.mimeType?.startsWith('image/') ? (
-                <img src={fileUrl(file.filename)} alt={file.originalName} className="h-40 w-full object-cover" />
+                <img src={fileUrl(file.filename)} alt={file.originalName} className="h-36 w-full object-cover" />
               ) : (
-                <div className="grid h-40 place-items-center text-sm text-muted">PDF</div>
+                <div className="grid h-36 place-items-center font-mono text-[12px] text-muted">PDF</div>
               )}
-              <a className="block px-3 py-2 text-sm text-brass" href={fileUrl(file.filename)} target="_blank" rel="noreferrer">
+              <a className="block truncate px-3 py-2 text-sm text-link" href={fileUrl(file.filename)} target="_blank" rel="noreferrer">
                 {file.originalName}
               </a>
             </li>
           ))}
         </ul>
-      </Card>
-
-      <Card className="grid gap-4 p-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
-        <p><span className="block text-xs uppercase tracking-[0.14em] text-muted">Assigned to</span>{task.assignedTo?.name}</p>
-        <p><span className="block text-xs uppercase tracking-[0.14em] text-muted">Assigned by</span>{task.assignedBy?.name}</p>
-        <p><span className="block text-xs uppercase tracking-[0.14em] text-muted">Due</span>{formatWhen(task.dueAt)}</p>
-        <p><span className="block text-xs uppercase tracking-[0.14em] text-muted">Started / finished</span>{formatWhen(task.startedAt)} · {formatWhen(task.completedAt)}</p>
-        {task.equipment ? (
-          <p className="sm:col-span-2">
-            <span className="block text-xs uppercase tracking-[0.14em] text-muted">Equipment</span>
-            <Link className="text-brass" to={`/equipment/${task.equipment._id}`}>{task.equipment.name}</Link>
-          </p>
-        ) : null}
       </Card>
     </div>
   );
