@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { Banner, Button, Card, Empty, Field, Loading, Pill, inputClass } from '../components/ui';
+import { Banner, Button, Card, Empty, Field, Loading, PageHeader, PanelTitle, Pill, Segment, inputClass } from '../components/ui';
 import { formatWhen, statusLabel } from '../lib/format';
 
 export default function Incidents() {
@@ -70,50 +70,50 @@ export default function Incidents() {
   }
 
   return (
-    <div className="space-y-6">
-      <header>
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-brass">Support log</p>
-        <h1 className="mt-2 font-serif text-4xl">Incidents</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          An open incident turns its task red, even when the due time has not passed.
-        </p>
-      </header>
-      <div className="flex gap-2">
-        {['', 'open', 'resolved'].map((item) => (
-          <button
-            key={item || 'all'}
-            type="button"
-            onClick={() => setStatus(item)}
-            className={`rounded-full px-4 py-1.5 text-sm ${status === item ? 'bg-ink text-paper' : 'border border-line bg-white'}`}
-          >
-            {item === '' ? 'All' : statusLabel(item)}
-          </button>
-        ))}
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title="Incidents"
+        lede="An open incident keeps its task red, even when the due time has not passed."
+      />
+      <Segment
+        value={status}
+        onChange={setStatus}
+        options={[
+          { value: '', label: 'All' },
+          { value: 'open', label: 'Open' },
+          { value: 'resolved', label: 'Resolved' },
+        ]}
+      />
       {error ? <Banner>{error}</Banner> : null}
       {notice ? <Banner tone="ok">{notice}</Banner> : null}
       {loading ? <Loading label="Loading incidents" /> : null}
       {!loading && incidents.length === 0 ? <Empty title="The log is clear">No incidents match this filter.</Empty> : null}
       {!loading && incidents.length > 0 ? (
         <Card>
+          <div className="hidden grid-cols-12 gap-3 border-b border-line bg-[#f7f8fa] px-4 py-2 text-[12px] text-muted md:grid">
+            <div className="col-span-5">What happened</div>
+            <div className="col-span-3">Task</div>
+            <div className="col-span-2">Severity</div>
+            <div className="col-span-2">Status</div>
+          </div>
           <ul>
             {incidents.map((incident) => (
-              <li key={incident._id} className="border-b border-line px-4 py-4 last:border-b-0">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm">{incident.message}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      <Link className="text-brass" to={`/tasks/${incident.task?._id}`}>{incident.task?.title}</Link>
-                      {' · '}{incident.reportedBy?.name} · {formatWhen(incident.createdAt)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Pill tone={incident.severity}>{incident.severity}</Pill>
-                    <Pill tone={incident.status}>{statusLabel(incident.status)}</Pill>
-                    {user?.role === 'admin' && incident.status === 'open' ? (
-                      <Button variant="quiet" onClick={() => resolve(incident._id)}>Resolve</Button>
-                    ) : null}
-                  </div>
+              <li key={incident._id} className="grid gap-2 border-b border-line px-4 py-3 last:border-b-0 md:grid-cols-12 md:items-center">
+                <div className="md:col-span-5">
+                  <p className="text-sm">{incident.message}</p>
+                  <p className="mt-0.5 font-mono text-[11px] text-muted">{incident.reportedBy?.name} · {formatWhen(incident.createdAt)}</p>
+                </div>
+                <p className="text-sm md:col-span-3">
+                  <Link className="text-link" to={`/tasks/${incident.task?._id}`}>{incident.task?.title}</Link>
+                </p>
+                <p className="md:col-span-2">
+                  <Pill tone={incident.severity}>{incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</Pill>
+                </p>
+                <div className="flex items-center gap-3 md:col-span-2">
+                  <Pill tone={incident.status}>{statusLabel(incident.status)}</Pill>
+                  {user?.role === 'admin' && incident.status === 'open' ? (
+                    <Button variant="quiet" onClick={() => resolve(incident._id)}>Resolve</Button>
+                  ) : null}
                 </div>
               </li>
             ))}
@@ -121,27 +121,29 @@ export default function Incidents() {
         </Card>
       ) : null}
 
-      <form className="grid gap-4 md:grid-cols-2" onSubmit={create}>
-        <Card className="space-y-4 p-5 md:col-span-2">
-          <h2 className="font-serif text-2xl">Log an incident</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Task">
-              <select className={inputClass} value={taskId} onChange={(event) => setTaskId(event.target.value)} required>
-                {tasks.map((task) => <option key={task._id} value={task._id}>{task.title}</option>)}
-              </select>
+      <form onSubmit={create}>
+        <Card>
+          <PanelTitle>Log an incident</PanelTitle>
+          <div className="space-y-3 p-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <Field label="Task">
+                <select className={inputClass} value={taskId} onChange={(event) => setTaskId(event.target.value)} required>
+                  {tasks.map((task) => <option key={task._id} value={task._id}>{task.title}</option>)}
+                </select>
+              </Field>
+              <Field label="Severity">
+                <select className={inputClass} value={severity} onChange={(event) => setSeverity(event.target.value)}>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </Field>
+            </div>
+            <Field label="What happened">
+              <textarea className={`${inputClass} min-h-24`} value={message} onChange={(event) => setMessage(event.target.value)} required />
             </Field>
-            <Field label="Severity">
-              <select className={inputClass} value={severity} onChange={(event) => setSeverity(event.target.value)}>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </Field>
+            <Button type="submit">Add to the log</Button>
           </div>
-          <Field label="What happened">
-            <textarea className={`${inputClass} min-h-24`} value={message} onChange={(event) => setMessage(event.target.value)} required />
-          </Field>
-          <Button type="submit">Add to the log</Button>
         </Card>
       </form>
     </div>

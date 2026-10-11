@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { cx, roleLabel } from '../lib/format';
+import { cx, formatDay, roleLabel } from '../lib/format';
 
 const links = [
-  { to: '/', label: 'Dashboard', end: true },
+  { to: '/', label: 'Board', end: true },
   { to: '/tasks', label: 'Tasks' },
   { to: '/schedule', label: 'Assign', admin: true },
   { to: '/reports', label: 'Reports' },
   { to: '/incidents', label: 'Incidents' },
   { to: '/equipment', label: 'Equipment' },
 ];
+
+function Mark() {
+  return (
+    <span className="flex h-4 items-end gap-0.5" aria-hidden="true">
+      <span className="h-2.5 w-1 bg-pine" />
+      <span className="h-4 w-1 bg-amber" />
+      <span className="h-3 w-1 bg-signal" />
+    </span>
+  );
+}
 
 export default function Shell() {
   const { user, logout } = useAuth();
@@ -25,47 +35,47 @@ export default function Shell() {
   const items = links.filter((item) => !item.admin || user?.role === 'admin');
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-canvas">
       {open ? (
         <button
           type="button"
-          className="fixed inset-0 z-30 bg-ink/40 md:hidden"
+          className="fixed inset-0 z-30 bg-ink/30 md:hidden"
           aria-label="Close menu"
           onClick={() => setOpen(false)}
         />
       ) : null}
       <aside className={cx(
-        'fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-navy text-white transition-transform md:translate-x-0',
+        'fixed inset-y-0 left-0 z-40 flex w-[220px] flex-col border-r border-line bg-white transition-transform md:translate-x-0',
         open ? 'translate-x-0' : '-translate-x-full',
       )}>
-        <div className="flex items-center gap-3 px-5 py-6">
-          <div className="grid h-10 w-10 place-items-center border border-brass font-serif text-sm text-[#e7d3b1]">AD</div>
+        <div className="flex h-14 items-center gap-3 border-b border-line px-4">
+          <Mark />
           <div>
-            <p className="font-serif text-xl leading-none">AMC Desk</p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-white/50">Monitoring portal</p>
+            <p className="text-sm font-semibold leading-none">AMC Desk</p>
+            <p className="mt-1 font-mono text-[10px] uppercase text-muted">Maintenance</p>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 px-3">
+        <nav className="flex-1 px-2 py-3">
           {items.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
               className={({ isActive }) => cx(
-                'block rounded-md px-3 py-2 text-sm',
-                isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white',
+                'mb-0.5 block px-2.5 py-1.5 text-[13px]',
+                isActive ? 'bg-[#e7edf4] font-medium text-ink' : 'text-muted hover:bg-canvas hover:text-ink',
               )}
             >
               {item.label}
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-white/10 px-5 py-4">
-          <p className="text-sm font-medium">{user?.name}</p>
-          <p className="text-xs text-white/50">{roleLabel(user?.role)}</p>
+        <div className="border-t border-line px-4 py-3">
+          <p className="truncate text-[13px] font-medium">{user?.name}</p>
+          <p className="mt-0.5 text-[12px] text-muted">{roleLabel(user?.role)}</p>
           <button
             type="button"
-            className="mt-3 text-sm text-[#e7d3b1] hover:text-white"
+            className="mt-2 text-[13px] text-link hover:underline"
             onClick={() => {
               logout();
               navigate('/login');
@@ -75,19 +85,19 @@ export default function Shell() {
           </button>
         </div>
       </aside>
-      <div className="md:pl-64">
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line/80 bg-paper/90 px-4 py-3 backdrop-blur md:px-8">
+      <div className="md:pl-[220px]">
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 border-b border-line bg-white px-4 md:px-6">
           <button
             type="button"
-            className="rounded-md border border-line bg-white px-3 py-1.5 text-sm md:hidden"
+            className="h-8 border border-line bg-white px-2.5 text-[13px] md:hidden"
             onClick={() => setOpen(true)}
           >
             Menu
           </button>
-          <p className="hidden text-sm text-muted md:block">Annual maintenance desk</p>
-          <p className="text-sm text-ink">{roleLabel(user?.role)}</p>
+          <p className="hidden font-mono text-[12px] text-muted md:block">{formatDay()}</p>
+          <p className="ml-auto text-[13px] text-ink">{roleLabel(user?.role)}</p>
         </header>
-        <main className="mx-auto max-w-7xl px-4 py-6 md:px-8 md:py-8">
+        <main className="px-4 py-5 md:px-6 md:py-6">
           <Outlet />
         </main>
       </div>
