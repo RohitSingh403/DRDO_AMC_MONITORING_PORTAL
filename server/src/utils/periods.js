@@ -57,7 +57,7 @@ export function windowFor(frequency, date) {
   return { scheduledFor, dueAt };
 }
 
-export function eachDay(from, to, limit = 31) {
+export function eachDay(from, to, limit = 366) {
   const days = [];
   const cursor = startOfDay(from);
   const end = startOfDay(to);

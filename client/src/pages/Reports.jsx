@@ -66,7 +66,8 @@ export default function Reports() {
         </Field>
       </div>
       {error ? <Banner>{error}</Banner> : null}
-      {loading || !summary ? <Loading label="Building the report" /> : (
+      {loading ? <Loading label="Building the report" /> : null}
+      {!loading && summary ? (
         <>
           <div className="grid gap-4 lg:grid-cols-2">
             <Card>
@@ -131,7 +132,7 @@ export default function Reports() {
             </table>
           </Card>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

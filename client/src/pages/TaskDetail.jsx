@@ -48,6 +48,11 @@ export default function TaskDetail() {
     setSaving(true);
     setError('');
     setNotice('');
+    if (logIncident && !form.issueRemark.trim()) {
+      setSaving(false);
+      setError('Write the issue remark before logging it as an incident.');
+      return;
+    }
     try {
       const data = await api.patch(`/api/tasks/${id}`, form);
       if (logIncident && form.issueRemark.trim()) {
