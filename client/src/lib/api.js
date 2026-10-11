@@ -21,7 +21,23 @@ async function request(path, { method = 'GET', body, form } = {}) {
     payload = JSON.stringify(body);
   }
 
-  const response = await fetch(`${base}${path}`, { method, headers, body: payload });
+  let response;
+  try {
+    response = await fetch(`${base}${path}`, {
+      method,
+      headers,
+      body: payload,
+      signal: AbortSignal.timeout(90000),
+    });
+  } catch (err) {
+    const timedOut = err?.name === 'TimeoutError' || err?.name === 'AbortError';
+    throw new ApiError(
+      timedOut
+        ? 'The desk did not answer in time. Wait a moment and sign in again.'
+        : 'The desk could not be reached. Wait a moment and sign in again.',
+      0,
+    );
+  }
   const text = await response.text();
   let data = null;
   if (text) {

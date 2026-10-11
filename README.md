@@ -63,13 +63,13 @@ Proof files are stored in `server/uploads`. That folder is local disk. On Render
 
 ## Host it
 
-The desk is a Vite site on Vercel. The API is a Render web service. Render does not provide MongoDB, so `MONGODB_URI` points at MongoDB Atlas.
+The desk is a Vite site on Vercel. The API is a Render web service. When `MONGODB_URI` is unset, the Render service starts MongoDB on the same machine and seeds the demo accounts on boot. That data lives on the service disk and is recreated after a restart. Set `MONGODB_URI` to an Atlas connection string when the records should survive restarts.
 
 The Vercel project needs `VITE_API_URL` set to the Render URL before the production build, for example `https://amc-desk.onrender.com`. The API allows the Vercel site and `https://amcportal.iamrohitsingh.com`.
 
 ## Host on Render
 
-One web service runs the API. It can also serve a copy of the built desk. In Atlas, create a cluster, a database user, and a connection string, and allow access from anywhere (`0.0.0.0/0`).
+One web service runs the API and, unless `MONGODB_URI` is set, a local MongoDB for the demo accounts. It can also serve a copy of the built desk. An Atlas connection string is optional.
 
 On the New Web Service screen, use these values. Leave Root Directory empty.
 
@@ -89,7 +89,7 @@ Environment variables:
 
 | Key | Value |
 | --- | --- |
-| `MONGODB_URI` | the Atlas connection string |
+| `MONGODB_URI` | optional Atlas connection string. Leave unset to use the database started with the service |
 | `JWT_SECRET` | a long random string |
 | `NODE_ENV` | `production` |
 | `SEED` | `true` |
