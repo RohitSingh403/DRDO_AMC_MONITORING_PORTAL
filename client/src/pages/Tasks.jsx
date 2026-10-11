@@ -66,7 +66,7 @@ export default function Tasks() {
       <PageHeader
         title="Tasks"
         lede={user?.role === 'admin' ? 'Every check on the desk, ordered with open work first.' : 'Checks assigned to you, ordered with open work first.'}
-        actions={user?.role === 'admin' ? <Link to="/schedule"><Button>Assign work</Button></Link> : null}
+        actions={user?.role === 'admin' ? <Button to="/schedule">Assign work</Button> : null}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">

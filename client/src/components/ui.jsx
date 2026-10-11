@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { cx } from '../lib/format';
 
 export const inputClass = 'w-full border border-line bg-white px-2.5 py-1.5 text-sm text-ink outline-none transition focus:border-link';
@@ -22,23 +23,19 @@ const swatches = {
   monthly: 'bg-[#6b4f2a]',
 };
 
-export function Button({ variant = 'primary', className = '', type = 'button', ...props }) {
+export function Button({ variant = 'primary', className = '', type = 'button', to, ...props }) {
   const styles = {
     primary: 'bg-navy text-white hover:bg-ink',
     quiet: 'border border-line bg-white text-ink hover:border-ink',
     brass: 'bg-navy text-white hover:bg-ink',
   };
-  return (
-    <button
-      type={type}
-      className={cx(
-        'inline-flex h-8 items-center justify-center gap-2 px-3 text-[13px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
-        styles[variant],
-        className,
-      )}
-      {...props}
-    />
+  const classNames = cx(
+    'inline-flex h-8 items-center justify-center gap-2 px-3 text-[13px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
+    styles[variant],
+    className,
   );
+  if (to) return <Link to={to} className={classNames} {...props} />;
+  return <button type={type} className={classNames} {...props} />;
 }
 
 export function Field({ label, hint, children }) {
